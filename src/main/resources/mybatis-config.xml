@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	
+	<!-- Setting for Naver Login -->
+	<settings> 
+	    <setting name="cacheEnabled" value="false" />
+	    <setting name="jdbcTypeForNull" value="NULL" />
+	</settings>
+
+	<mappers>
+	  <package name="com.pj.gabozago.mapper" />
+ 	</mappers>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+</configuration> 

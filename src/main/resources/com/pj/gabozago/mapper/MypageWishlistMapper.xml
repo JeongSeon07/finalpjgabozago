@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- Mapper.xml 파일의 FQCN(상세경로 포함 정확한 이름) -->
+<mapper namespace="com.pj.gabozago.mapper.MypageWishlistMapper">
+
+    <!-- id : 메소드명 -->
+    <!-- parameterType="java.util.Map" 은 생략이 가능함 -->
+    <select 
+        id="selectAccomWishlist" 
+        resultType="java.util.LinkedHashMap"> 
+        
+        SELECT 
+            wa.idx,
+            ai.file_name,
+            a.idx AS accom_idx,
+            a.accom_name,
+            la.large_area_name
+        FROM 
+            tbl_wishlist_accom wa,
+            tbl_accom_images ai,
+            (SELECT idx, accom_name, large_area_idx FROM tbl_accom) a,
+            (SELECT idx, large_area_name FROM tbl_large_area) la
+        WHERE 
+            wa.accom_idx = a.idx 
+            AND ai.accom_idx = a.idx
+            AND a.large_area_idx = la.idx
+            AND wa.member_idx = #{member.idx}
+        ORDER BY
+            wa.idx DESC
+        OFFSET (#{cri.currPage} -1) * #{cri.amount} ROWS
+        FETCH NEXT #{cri.amount} ROWS ONLY
+
+    </select>
+
+    <select 
+        id="selectPlanWishlist" 
+        resultType="java.util.LinkedHashMap">
+        
+        SELECT
+            wp.idx,
+            wp.travel_plan_idx,
+            la.large_area_name,
+            m.nickname,
+            tp.likes,
+            tp.days as total_days
+        FROM 
+            tbl_wishlist_plan wp,
+            (SELECT idx, large_area_idx, member_idx, is_public, likes, days FROM tbl_travel_plan) tp,
+            (SELECT idx, large_area_name FROM tbl_large_area) la,
+            (SELECT idx, nickname FROM tbl_member) m
+        WHERE 
+            wp.travel_plan_idx = tp.idx
+            AND tp.large_area_idx = la.idx
+            AND tp.member_idx = m.idx (+)
+            AND wp.member_idx = #{member.idx}
+            AND tp.is_public = 'Y'
+        ORDER BY
+            wp.idx DESC
+        OFFSET (#{cri.currPage} -1) * #{cri.amount} ROWS
+        FETCH NEXT #{cri.amount} ROWS ONLY
+
+    </select>
+
+    <select 
+        id="selectPlanDetail" 
+        resultType="java.util.LinkedHashMap"
+        fetchSize="100">
+        
+        SELECT
+            tpd.day,
+            tpd.place_type,
+            a.accom_name,
+            tpd.place_name,
+            tpd.place_seq
+        FROM
+            tbl_travel_plan_detail tpd,
+            (SELECT idx, accom_room_idx FROM tbl_reservation) r,
+            (SELECT idx, accom_idx FROM tbl_accom_room) ar,
+            (SELECT idx, accom_name FROM tbl_accom) a,
+            (SELECT idx, is_public FROM tbl_travel_plan) tp
+        WHERE
+            tpd.reservation_idx = r.idx (+)
+            AND r.accom_room_idx = ar.idx (+)
+            AND ar.accom_idx = a.idx (+)
+            AND tp.idx = tpd.travel_plan_idx (+)
+            AND travel_plan_idx = #{travelPlanIdx}
+            AND tp.is_public = 'Y'
+
+    </select>
+
+</mapper>

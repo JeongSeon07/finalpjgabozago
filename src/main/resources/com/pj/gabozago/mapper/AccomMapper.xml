@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 명명법은 경로구분자로 .를 사용하고, 마지막 이름은 Mapper파일명으로 지어주는것이관레임 -->
+<mapper namespace="com.pj.gabozago.mapper.AccomMapper">
+
+    <!-- 호텔 전체 리스트 -->
+    <select id="getList" resultMap="AccomDTO">
+        SELECT
+        	-1 wishlist_idx,
+            r.idx,
+            r.accom_name,
+            r.large_area_idx,
+            a.large_area_name,  
+            (select max(price) from tbl_accom_room where accom_idx = r.idx) as max_price,
+            (select min(price) from tbl_accom_room where accom_idx = r.idx) as min_price,
+            (select ai.file_name from tbl_accom_images ai where r.idx = ai.idx) as file_name
+        FROM tbl_accom r ,tbl_large_area a
+        WHERE r.large_area_idx = a.idx
+        ORDER BY r.idx asc
+        OFFSET (#{cri.currPage} -1) * #{cri.amount} ROWS
+        FETCH NEXT #{cri.amount} ROWS ONLY
+	</select>
+
+    <!--  -->
+    <select id="getListWithMember" resultMap="AccomDTO">      
+        SELECT 
+            NVL(wa.idx, -1) wishlist_idx,
+            r.idx,
+            r.accom_name,
+            r.large_area_idx,
+            a.large_area_name,  
+            (select max(price) from tbl_accom_room where accom_idx = r.idx) as max_price,
+            (select min(price) from tbl_accom_room where accom_idx = r.idx) as min_price,
+            (select ai.file_name from tbl_accom_images ai where r.idx = ai.idx) as file_name
+        FROM tbl_accom r
+            INNER JOIN tbl_large_area a ON a.idx = r.large_area_idx
+            LEFT OUTER JOIN (select * from tbl_wishlist_accom where member_idx = #{member.idx}) wa ON wa.accom_idx = r.idx
+        ORDER BY r.idx asc
+        OFFSET (#{cri.currPage} -1) * #{cri.amount} ROWS
+        FETCH NEXT #{cri.amount} ROWS ONLY
+	</select>
+
+    <select id="getTotalHotelCount" resultType="int">
+        SELECT count(idx)
+        FROM tbl_accom r
+        <where>
+            <if test="largeAreaIdx != null">AND r.large_area_idx = #{largeAreaIdx}</if>
+        </where>
+    </select>
+
+    <!-- 검색한 숙소 리스트 -->
+    <select id="selectSearchedAccomList" resultMap="AccomDTO">
+        SELECT 
+        	-1 wishlist_idx,
+            r.idx,
+            r.accom_name,
+            r.large_area_idx,
+            a.large_area_name,  
+            (select max(price) from tbl_accom_room where accom_idx = r.idx) as max_price,
+            (select min(price) from tbl_accom_room where accom_idx = r.idx) as min_price,
+            (select ai.file_name from tbl_accom_images ai where r.idx = ai.idx) as file_name
+        FROM tbl_accom r ,tbl_large_area a
+        <where>
+            r.large_area_idx = a.idx
+            <if test="largeAreaIdx != null">AND r.large_area_idx = #{largeAreaIdx}</if>
+        </where>
+        ORDER BY r.idx asc
+    </select>
+
+    <!-- 멤버가 검색한 숙소 리스트 -->
+    <select id="selectSearchedAccomListWithMember" resultMap="AccomDTO">
+        SELECT 
+        	NVL(wa.idx, -1) wishlist_idx,
+            r.idx,
+            r.accom_name,
+            r.large_area_idx,
+            a.large_area_name,  
+            (select max(price) from tbl_accom_room where accom_idx = r.idx) as max_price,
+            (select min(price) from tbl_accom_room where accom_idx = r.idx) as min_price,
+            (select ai.file_name from tbl_accom_images ai where r.idx = ai.idx) as file_name
+        FROM tbl_accom r
+            INNER JOIN tbl_large_area a ON a.idx = r.large_area_idx
+            LEFT OUTER JOIN (select * from tbl_wishlist_accom where member_idx = #{memberIdx}) wa ON wa.accom_idx = r.idx
+        <where>
+            r.large_area_idx = a.idx
+            <if test="largeAreaIdx != null">AND r.large_area_idx = #{largeAreaIdx}</if>
+        </where>
+        ORDER BY r.idx asc
+    </select>
+
+
+    <!-- 선택한 숙소 한개의 정보 -->
+    <select id="getOneAccomDetail" resultType="java.util.Map">
+	    SELECT 
+            r.idx,
+            r.accom_name,
+            r.address,
+            r.latitude,
+            r.longitude
+		FROM tbl_accom r
+		WHERE r.idx = #{idx}
+	</select>
+
+
+    <select id="selectRoomList" resultType="java.util.LinkedHashMap">
+		 SELECT 
+            r.idx,
+            r.accom_idx,
+            r.room_name,
+            r.room_desc,
+            r.check_in,
+            r.check_out,
+            r.default_count,
+            r.max_count,
+            r.room_area,
+            r.room_option,
+            r.price,
+            img.file_name
+        FROM tbl_accom_room r
+        	LEFT OUTER JOIN tbl_accom_room_images img ON r.idx = img.accom_room_idx
+        WHERE r.accom_idx = #{idx}
+    </select>
+
+
+    <select id="selectRoomDetail" resultType="java.util.Map">
+        SELECT 
+            ar.idx,
+            ar.accom_idx,
+            ar.room_name,
+            ar.room_desc,
+            ar.check_in,
+            ar.check_out,
+            ar.default_count,
+            ar.max_count,
+            ar.room_area,
+            ar.room_option,
+            ar.price,
+            img.file_name
+        FROM tbl_accom_room ar
+        	LEFT OUTER JOIN tbl_accom_room_images img ON ar.idx = img.accom_room_idx
+        WHERE ar.idx = #{idx}
+    </select>
+
+    <select id="selectOneMemberInfo" resultType="java.util.Map">
+        SELECT 
+            m.idx,
+            m.email,
+            m.name,
+            m.phone,
+            m.point
+        FROM tbl_member m
+        WHERE m.idx = #{idx}
+    </select>
+
+    <select id="selectOneRoomInfo" resultType="java.util.Map">   
+        SELECT 
+            r.idx AS accom_idx,
+            r.accom_name,
+            r.large_area_idx,
+            ar.idx AS accom_room_idx,
+            ar.price,
+            ar.room_name,
+            arimg.file_name
+        FROM tbl_accom_room ar
+            INNER JOIN tbl_accom r ON r.idx = ar.accom_idx
+            INNER JOIN tbl_accom_images arimg  ON arimg.idx = ar.idx
+        WHERE ar.idx = #{idx}
+    </select>
+
+    <select id="selectHotelLike" resultType="java.util.Map">   
+        SELECT idx
+        FROM tbl_wishlist_accom
+		WHERE member_idx=#{memberIdx} 
+    		AND accom_idx=#{accomIdx}
+    </select>
+
+    <select id="selectCountHotelLike" resultType="int">
+        SELECT count(idx)
+        FROM tbl_wishlist_accom
+		WHERE member_idx=#{memberIdx} 
+    </select>
+
+    <insert id="insertHotelLike">
+        INSERT INTO 
+            tbl_wishlist_accom(member_idx,accom_idx)
+        VALUES(#{memberIdx},#{accomIdx})
+    </insert>
+
+    <delete id="deleteHotelLike">
+    	DELETE 
+    	FROM tbl_wishlist_accom
+    	WHERE member_idx=#{memberIdx} 
+    		AND accom_idx=#{accomIdx}
+    </delete>
+
+    <!-- 후기 조회 -->
+    <select id="selectHotelReviewList" resultType="java.util.LinkedHashMap">
+		SELECT 
+		    r.idx,
+		    m.nickname,
+		    r.accom_room_idx,
+		    ar.room_name,
+		    r.grade1,
+		    r.grade2,
+		    r.grade3
+		FROM tbl_accom_review r
+		    INNER JOIN tbl_member m ON m.idx = r.member_idx
+		    INNER JOIN tbl_accom_room ar ON ar.idx = r.accom_room_idx
+		    INNER JOIN tbl_accom a ON a.idx = ar.accom_idx
+		WHERE a.idx = #{idx}
+	</select>
+
+    <select id="selectHotelAvgReview" resultType="java.util.LinkedHashMap">
+		SELECT 
+			ROUND(AVG(r.grade1),1) AS GRADE1,
+			ROUND(AVG(r.grade2),1) AS GRADE2,
+			ROUND(AVG(r.grade3),1) AS GRADE3
+		FROM tbl_accom_review r
+		    INNER JOIN tbl_member m ON m.idx = r.member_idx
+		    INNER JOIN tbl_accom_room ar ON ar.idx = r.accom_room_idx
+		    INNER JOIN tbl_accom a ON a.idx = ar.accom_idx
+		WHERE a.idx = #{idx}
+	</select>
+
+
+    <update id="updateMemberPoint">
+        UPDATE tbl_member 
+        SET point = 
+            ((SELECT sum(point_amount) 
+            FROM tbl_point_history 
+            WHERE member_idx = #{idx} 
+            AND is_plus = 'Y')
+            -(SELECT sum(point_amount) 
+            FROM tbl_point_history 
+            WHERE member_idx = #{idx} 
+            AND is_plus = 'N')) 
+        WHERE idx = #{idx}
+    </update>
+
+    <select id="getLastSeq" resultType="int">
+        SELECT seq
+		FROM (
+	    	SELECT seq
+	    	FROM tbl_reservation
+        <![CDATA[
+	    		WHERE TO_CHAR(insert_ts,'YYYYMMDD') = TO_CHAR(SYSDATE,'YYYYMMDD')
+	    	]]>
+        ORDER BY seq DESC
+		) WHERE ROWNUM = 1
+    </select>
+
+
+    <insert id="insertReservation">
+    	INSERT INTO tbl_reservation(idx, member_idx, accom_room_idx, large_area_idx, check_in_date, check_out_date, adult_count, child_count, status, seq, insert_ts)
+		VALUES (#{idx}, #{memberIdx}, #{accomRoomIdx}, #{largeAreaIdx}, #{checkInDate}, #{checkOutDate}, #{adultCount}, #{childCount}, #{status}, #{seq}, sysdate)
+	</insert>
+
+    <insert id="insertPayment">
+    	INSERT INTO tbl_payment(idx, reservation_idx, member_idx, order_price, use_point, payment_price, payment_type, insert_ts)
+		VALUES ((SELECT NVL(MAX(idx), 0) + 1 FROM tbl_payment), #{reservationIdx},#{memberIdx}, #{orderPrice}, #{usePoint}, #{paymentPrice}, #{paymentType}, sysdate)
+	</insert>
+
+    <!--************************* hearder search part end ************************  -->
+    <select id="selectSearchKeyword" resultMap="AccomDTO">
+        SELECT
+            -1 wishlist_idx,
+            r.idx,
+            r.accom_name,
+            r.large_area_idx,
+            a.large_area_name,  
+            (select max(price) from tbl_accom_room where accom_idx = r.idx) as max_price,
+            (select min(price) from tbl_accom_room where accom_idx = r.idx) as min_price,
+            (select ai.file_name from tbl_accom_images ai where r.idx = ai.idx) as file_name
+        FROM tbl_accom r ,tbl_large_area a
+        WHERE r.large_area_idx = a.idx
+        AND (r.accom_name LIKE '%'||#{keyword}||'%' OR a.large_area_name LIKE '%'||#{keyword}||'%') 
+        ORDER BY r.idx asc
+        OFFSET (#{cri.currPage} -1) * #{cri.amount} ROWS
+        FETCH NEXT #{cri.amount} ROWS ONLY
+    </select>
+
+    <!-- 헤더 검색 총 레코드 건수 반환 -->
+    <select id="getTotalKeywordSearch" resultType="int">
+        SELECT count(a.idx)
+        FROM tbl_accom r ,tbl_large_area a
+        WHERE r.large_area_idx = a.idx
+        AND (r.accom_name LIKE '%'||#{keyword}||'%' OR a.large_area_name LIKE '%'||#{keyword}||'%')
+  
+
+
+    </select>
+    <!--************************* hearder search part end ************************  -->
+
+
+    <resultMap type="com.pj.gabozago.domain.AccomDTO" id="AccomDTO">
+        <result property="wishlistIdx" column="WISHLIST_IDX" />
+        <result property="idx" column="IDX" />
+        <result property="accomName" column="ACCOM_NAME" />
+        <result property="largeAreaIdx" column="LARGE_AREA_IDX" />
+        <result property="address" column="ADDRESS" />
+        <result property="latitude" column="LATITUDE" />
+        <result property="longitude" column="LONGITUDE" />
+        <result property="insertTs" column="INSERTTS" />
+        <result property="updateTs" column="UPDATETS" />
+
+        <!-- property: travelPlanVO 클래스에 선언한 travelPlanDetailVO의 변수명, resultMap에는 travelPlanDetailVO의 resultmap id 넣기  -->
+        <collection property="travellargeDTO" resultMap="trDTO"></collection>
+        <collection property="accomroomDTO" resultMap="arDTO"></collection>
+        <collection property="accomimagesDTO" resultMap="aiDTO"></collection>
+
+    </resultMap>
+
+
+    <!-- <resultMap type="java.util.Map" id="AccomDetailVO">
+        <result property="idx" column="IDX"/>
+        <result property="accomName" column="ACCOM_NAME"/>
+    </resultMap> -->
+
+    <resultMap type="com.pj.gabozago.domain.TravelLargeDTO" id="trDTO">
+        <result property="idx" column="IDX" />
+        <result property="largeAreaName" column="LARGE_AREA_NAME" />
+    </resultMap>
+
+    <resultMap type="com.pj.gabozago.domain.AccomRoomDTO" id="arDTO">
+        <result property="idx" column="IDX" />
+        <result property="accomIdx" column="ACCOM_IDX" />
+        <result property="roomName" column="ROOM_NAME" />
+        <result property="roomDesc" column="ROOM_DESC" />
+        <result property="checkIn" column="CHECK_IN" />
+        <result property="checkOut" column="CHECK_OUT" />
+        <result property="defaultCount" column="DEFAULT_COUNT" />
+        <result property="maxCount" column="MAX_COUNT" />
+        <result property="roomArea" column="ROOM_AREA" />
+        <result property="roomOption" column="ROOM_OPTION" />
+        <result property="price" column="PRICE" />
+        <result property="maxPrice" column="MAX_PRICE" />
+        <result property="minPrice" column="MIN_PRICE" />
+    </resultMap>
+
+    <resultMap type="com.pj.gabozago.domain.AccomImagesDTO" id="aiDTO">
+        <result property="idx" column="IDX" />
+        <result property="fileName" column="FILE_NAME" />
+        <result property="accomIdx" column="ACCOM_IDX" />
+    </resultMap>
+
+
+</mapper>

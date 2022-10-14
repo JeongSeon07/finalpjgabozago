@@ -1,0 +1,204 @@
+body {
+    margin: 0;
+    padding: 0;
+    width: 1920px;
+    /* width: 100%; */
+    font-family: 'Noto Sans KR', sans-serif;
+    /* width: 100%; */
+  
+}
+
+header {
+    height: 140px;
+    /* background-color: rgb(185, 217, 181); */
+
+    /* width: 100%; */
+}
+
+nav {
+    position: absolute;
+    float: left;
+    width: 100px;
+    height: 880px;
+    margin: 20px;
+
+    background-color: none;
+    /* overflow: scroll; */
+
+    /* width: 100%; */
+}
+
+section {
+    float: left;
+    margin-left: 100px;
+    width: 1910px;
+    height: 900px;
+
+    /* width: 100%; */
+    background-color: white;
+   
+
+}
+
+footer {
+    clear: both;
+    height: 280px;
+   
+
+    /* width: 100%; */
+}
+
+/* 초록 컨테이너 */
+.plan_all_list {
+    margin: 20px;
+    width: 1780px;
+    height: 880px;
+    
+    background-color: #DAE8DA;
+    text-align: center;
+}
+
+/* 경로지도버튼 */
+.btn_container {
+    display: inline-block;
+}
+
+.btn_plan_all {
+    border: none;
+    
+    width: 110px;
+    height: 53px;
+    background: #999999 ;
+    color: white;
+  
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 28px;
+    text-align: center; 
+
+    margin-bottom: 30px;
+    
+}
+
+.btn_plan_all:hover {
+	background-color:#68AE6D;
+}
+
+
+/* 날짜박스, map 아이템 컨테이너 > 스크롤*/
+.plan_items {
+    width: 1780px !important;
+    height: 750px !important;
+    overflow-y: scroll;
+
+    text-align: center;
+}
+
+
+
+/* 날짜박스 각각 */
+.row {
+    box-sizing: border-box;
+    /* position: absolute; */
+    width: 1576px !important;
+    height: 227px !important;
+
+    color: #666666;
+    background: #F5F5F5;
+    /* Text/Grey */
+
+    border: 1px solid #D0D0D0;
+    border-radius: 20px;
+
+    margin: 15px auto !important;
+    display: grid;
+}
+
+/* 날짜박스 안 정렬 */
+.col-sm-4 {
+    margin: auto !important;
+
+    font-weight: 700;
+    font-size: 24px;
+    text-align: center;
+}
+.col-sm-8 {
+    margin: auto !important;
+    display: flex;
+}
+.place1, .place2, .place3, .place4, .place5, .place6, .place7 {
+    width: 140px;
+}
+.place_img {
+    padding-left: 12px;
+    position: absolute;
+
+    opacity: 90%;
+    width: 120px;
+    height: 120px;
+    filter: brightness(70%); 
+}
+.place_img img {
+    border-radius: 5%;
+}
+.place_name {
+    width: 100px;
+    height: 90px;
+    margin: auto;
+    position: relative;
+    
+    padding-top: 40px;
+    
+    color: #F5F5F5;
+    font-weight: 600;
+}
+
+
+/* 지도박스 */
+#map_all {
+    display: none;
+    width: 1700px;
+    height: 750px;
+    margin: auto; 
+}
+#map_part {
+    display: none;
+    width: 1700px;
+    height: 750px;
+    margin: auto; 
+}
+
+/* 좌측 nav 부분 버튼 */
+.btn_circle {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center; /* 가로 - 중앙으로 */
+    justify-content: flex-start; /* 세로 - 상단으로 */
+
+    box-sizing: border-box;
+    width: 75px;
+    height: 75px;
+    background: rgba(213, 206, 206, 0.29);
+    mix-blend-mode: normal;
+    border: 1px solid #68AE6D;
+    border-radius: 110px;
+
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    text-align: center;
+    letter-spacing: 0.4px;
+    color: #68AE6D;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+
+    margin: 5px;
+    padding-top: 17px;
+}
+.btn_circle:hover {
+    background: #68AE6D;
+    color: white;
+}
+
+
+

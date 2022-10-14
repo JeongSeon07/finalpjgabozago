@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!-- Mapper.xml 파일의 FQCN(상세경로 포함 정확한 이름) -->
+<mapper namespace="com.pj.gabozago.mapper.AdminReservMapper">
+
+    <!-- id : 메소드명 -->
+    <!-- parameterType="java.util.Map" 은 생략이 가능함 -->
+    <!-- 숙소 예약 정보 -->
+    <select 
+        id="selectReservInfo"
+        resultType="java.util.Map">
+        SELECT
+            r.idx, 
+            m.name, 
+            a.accom_name, 
+            r.check_in_date, 
+            r.check_out_date, 
+            r.status
+        FROM
+            tbl_reservation r,
+            tbl_member m,
+            tbl_accom_room ar,
+            tbl_accom a
+        WHERE
+            r.member_idx = m.idx
+            AND ar.idx = r.accom_room_idx
+            AND ar.accom_idx = a.idx
+		ORDER BY 
+			r.idx desc
+        OFFSET (#{cri.currPage} -1) * #{cri.amount} ROWS
+        FETCH NEXT #{cri.amount} ROWS ONLY
+    </select>
+    
+    <!-- 숙소 예약 취소 정보 -->
+    <select 
+        id="selectCanReservInfo"
+        resultType="java.util.Map">
+        SELECT
+            r.idx, 
+            m.name, 
+            a.accom_name, 
+            r.check_in_date, 
+            r.check_out_date, 
+            r.status
+        FROM
+            tbl_reservation r,
+            tbl_member m,
+            tbl_accom_room ar,
+            tbl_accom a
+        WHERE
+            r.member_idx = m.idx
+            AND ar.idx = r.accom_room_idx
+            AND ar.accom_idx = a.idx
+            AND r.status = 'CD'
+        ORDER BY 
+			r.idx desc
+        OFFSET (#{cri.currPage} -1) * #{cri.amount} ROWS
+        FETCH NEXT #{cri.amount} ROWS ONLY
+    </select>
+    
+    <!-- 숙소 예약 상세 정보 -->
+    <select 
+        id="selectOneReserDetail"
+        resultType="java.util.Map">
+        SELECT
+            r.idx,
+            a.accom_name,
+            ar.room_name,
+            r.check_in_date,
+            r.check_out_date,
+            r.adult_count,
+            r.child_count,
+            m.name,
+            m.phone,
+            m.email,
+            p.order_price,
+            p.use_point,
+            p.payment_price,
+            p.insert_ts,
+            r.status,
+            ai.file_name,
+            a.idx AS accom_idx,
+            ar.idx AS accom_room_idx
+        FROM 
+            tbl_reservation r,
+            (SELECT idx, accom_name FROM tbl_accom) a,
+            (SELECT idx, accom_idx, room_name FROM tbl_accom_room) ar,
+            (SELECT idx, name, phone, email FROM tbl_member) m,
+            (SELECT reservation_idx, order_price, use_point, payment_price, insert_ts FROM tbl_payment) p,
+            tbl_accom_images ai
+        WHERE
+            r.accom_room_idx = ar.idx
+            AND ar.accom_idx = a.idx
+            AND r.member_idx = m.idx
+            AND r.idx = p.reservation_idx
+            AND a.idx = ai.accom_idx
+            AND r.idx = #{idx}
+    </select>
+    
+    
+    <!-- 숙소 예약 취소 건 상세 정보 -->
+    <select 
+        id="selectRefundInfo"
+        resultType="com.pj.gabozago.domain.RefundVO">
+        SELECT 
+            rf.idx, 
+            rf.payment_idx, 
+            rf.refund_price, 
+            rf.refund_point, 
+            rf.insert_ts 
+        FROM 
+            (SELECT idx FROM tbl_reservation) rv,
+            (SELECT idx, reservation_idx FROM tbl_payment) p,
+            tbl_refund rf
+        WHERE 
+            rv.idx = p.reservation_idx
+            AND p.idx = rf.payment_idx
+            AND rv.idx = #{idx}
+    </select>
+    
+
+</mapper>
