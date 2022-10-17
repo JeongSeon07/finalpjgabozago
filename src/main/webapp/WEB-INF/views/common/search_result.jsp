@@ -69,6 +69,7 @@
         <script src="/resources/accom/js/reservation_main.js"></script>
 
 
+    
     </head>
 
     <body>
@@ -167,10 +168,13 @@
             </div>
         </c:if>
 
-        <div class="emptyResult">
-            <div class="bi bi-emoji-frown"></div>
-            <h3>'${keyword}'의 검색결과가 없습니다.다른 키워드로 검색해보세요</h3>
-        </div>
+        <c:if test="${empty list}">
+            <div class="emptyResult">
+                <div class="bi bi-emoji-frown"></div>
+                <h3>'${keyword}'의 검색결과가 없습니다.다른 키워드로 검색해보세요</h3>
+            </div>
+        </c:if>
+
 
 
 
